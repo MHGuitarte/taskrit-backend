@@ -2,8 +2,8 @@ package com.mangh.taskrit.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -15,8 +15,8 @@ public class BoardRole {
     private User user;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue
+    private UUID boardRoleId;
 
     @OneToOne
     @JoinColumn(name = "boardId", nullable = false)

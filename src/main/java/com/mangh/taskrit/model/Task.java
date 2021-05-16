@@ -2,7 +2,6 @@ package com.mangh.taskrit.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -13,11 +12,7 @@ import java.util.UUID;
 public class Task {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @GeneratedValue
     private UUID taskId;
 
     @Column
@@ -38,5 +33,5 @@ public class Task {
 
     @Column(length = 2)
     private Integer pending;
-    
+
 }

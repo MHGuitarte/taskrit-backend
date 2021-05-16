@@ -2,12 +2,9 @@ package com.mangh.taskrit.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.UUID;
-
 
 
 @Entity
@@ -16,12 +13,8 @@ import java.util.UUID;
 public class List {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    private UUID id;
+    @GeneratedValue
+    private UUID listId;
 
     @Column(length = 30, nullable = false)
     private String name;

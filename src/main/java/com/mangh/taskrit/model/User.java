@@ -2,11 +2,10 @@ package com.mangh.taskrit.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
 import java.util.*;
 import java.util.List;
@@ -17,11 +16,7 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @GeneratedValue
     private UUID userId;
 
     @Column(length = 30, unique = true, nullable = false)
@@ -35,6 +30,7 @@ public class User implements UserDetails {
 
     @Lob
     @Column(columnDefinition = "BLOB")
+    @Type(type = "org.hibernate.type.BinaryType")
     private byte[] avatar;
 
     @Column(nullable = false)

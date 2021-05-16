@@ -15,11 +15,7 @@ import java.util.UUID;
 public class Board {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @GeneratedValue
     private UUID boardId;
 
     @Column(nullable = false, length = 60)
