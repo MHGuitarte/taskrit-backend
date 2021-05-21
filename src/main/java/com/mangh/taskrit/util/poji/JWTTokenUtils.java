@@ -7,6 +7,4 @@ public interface JWTTokenUtils {
     public String getJWTToken(final User user);
 
     public boolean checkToken(final String requestPass,final String userPass);
-
-    public String getAdminToken(final User u);
 }

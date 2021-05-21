@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 public class JWTTokenUtilsImpl implements JWTTokenUtils {
 
     @Value("${user.token.expiration}")
-    private long EXPIRATION_TOKEN; //10 min expiration
+    private long EXPIRATION_TOKEN; //2 day expiration
 
-    @Value("${admin.token.access.expiration}")
-    private long EXPIRATION_ADMIN_TOKEN; //3 min expiration
+    @Value("${refresh.token.access.expiration}")
+    private long REFRESH_TOKEN; //1 week expiration
 
     private final String secretKey = "6U#b*5";
-    private final String authId = "tinmdc";
+    private final String authId = "tskmdc";
 
     @Override
     public String getJWTToken(final User user) {
@@ -33,15 +33,9 @@ public class JWTTokenUtilsImpl implements JWTTokenUtils {
         return requestPass.equals(userPass);
     }
 
-    @Override
-    public String getAdminToken(final User u) {
-
-        return this.buildToken(u, this.EXPIRATION_ADMIN_TOKEN);
-    }
-
     private String buildToken(final User user, final long expiration) {
 
-        return "Bearer " + Jwts.builder() //
+        return Jwts.builder() //
                 .setId(this.authId) //
                 .setSubject(user.getUsername()) //
                 .claim("authorities", user.getAuthorities().stream() //
