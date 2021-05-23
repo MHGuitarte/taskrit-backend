@@ -16,7 +16,7 @@ public class Logger {
         this.logger.log(Level.INFO, this.buildMessage(msg, vars));
     }
 
-    public void warning(final String msg, final String... vars) {
+    public void warn(final String msg, final String... vars) {
         this.logger.log(Level.WARNING, this.buildMessage(msg, vars));
     }
 
@@ -25,11 +25,12 @@ public class Logger {
     }
 
     private String buildMessage(final String msg, final String... vars) {
-        String result = "";
-        for(final String var : vars) {
-            result = msg.replaceFirst("\\{\\}", var);
+        String result = msg;
+        if (vars.length > 0) {
+            for (final String var : vars) {
+                result = msg.replaceFirst("\\{\\}", var);
+            }
         }
-
-        return result;
+        return !result.isEmpty() ? result : "No message";
     }
 }

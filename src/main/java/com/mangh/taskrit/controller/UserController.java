@@ -1,57 +1,47 @@
 package com.mangh.taskrit.controller;
 
+import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.UserLoginReqDto;
 import com.mangh.taskrit.dto.request.UserRegisterReqDto;
-import com.mangh.taskrit.dto.response.UserRegisterResDto;
+import com.mangh.taskrit.dto.response.UserLoginResDto;
 import com.mangh.taskrit.mapper.poji.UserMapper;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.service.poji.UserService;
 import com.mangh.taskrit.util.poji.EmailService;
 import com.mangh.taskrit.util.poji.JWTTokenUtils;
 import com.mangh.taskrit.util.pojo.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
-
-    @Value("${user.token.expiration}")
-    private long EXPIRATION_TOKEN; //10 min expiration
-
-    @Value("${admin.token.access.expiration}")
-    private long EXPIRATION_ADMIN_TOKEN; //3 min expiration
-
-    @Value("${admin.token.access.security}")
-    private String adminAuth;
 
     private final Logger log = new Logger(UserController.class.getName());
 
     private final UserMapper userMapper;
     private final UserService userService;
     private final EmailService emailService;
-    private final AuthenticationManager authenticationManager;
     private final JWTTokenUtils jwtTokenUtils;
+    private final JWTAuthorizationToken jwtAuthorizationToken;
 
-    public UserController(UserService userService, UserMapper userMapper, EmailService emailService, AuthenticationManager authenticationManager, JWTTokenUtils jwtTokenUtils) {
+    public UserController(UserService userService, UserMapper userMapper, EmailService emailService,
+                          JWTTokenUtils jwtTokenUtils, JWTAuthorizationToken jwtAuthorizationToken) {
         this.userMapper = userMapper;
         this.emailService = emailService;
-        this.authenticationManager = authenticationManager;
         this.jwtTokenUtils = jwtTokenUtils;
         this.userService = userService;
+        this.jwtAuthorizationToken = jwtAuthorizationToken;
     }
 
     @PostMapping("/register")
-    public UserRegisterResDto saveUser(@RequestBody UserRegisterReqDto userRegisterReqDto) throws MessagingException {
+    public ResponseEntity<?> saveUser(@RequestBody UserRegisterReqDto userRegisterReqDto) {
         this.log.info("[USER][POST][NEW]Request for register new user");
 
         final User user = this.userMapper.mapUserRegisterReqToUser(userRegisterReqDto);
@@ -60,48 +50,46 @@ public class UserController {
         this.log.info("[USER][POST][NEW] User {} successfully added. Sending confirmation mail to user",
                 user.getUserId().toString());
 
-        this.sendRegistrationMail(createdUser); //TODO: Escribir mail
+        return ResponseEntity.ok(this.userMapper.mapUserToUserRegisterRes(createdUser));
+/*
+        try {
+            this.sendRegistrationMail(createdUser); //TODO: AuthenticationFailedException a la hora de mandar correo
 
-        return this.userMapper.mapUserToUserRegisterRes(createdUser);
+        } catch (MessagingException e) {
+            return ResponseEntity.badRequest().body("Mail Service Unavailable, registration mail will not be sended.");
+        }
+
+*/
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody UserLoginReqDto userLoginReqDto, HttpServletResponse response) {
+    public ResponseEntity<UserLoginResDto> login(@RequestBody UserLoginReqDto userLoginReqDto,
+                                                 HttpServletRequest request, HttpServletResponse response) {
         this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
 
+        //TODO: USAR ESTO PARA CHECKEAR EL TOKEN (HAY QUE INTENTAR CONSTRUIRLO PRIMERO Y LUEGO PROBARLO EN UN ENDPOINT CUALQUIERA)
+        if(!this.jwtAuthorizationToken.checkToken(request)) {
+            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         try {
+            final User user = this.userService.findByUsername(userLoginReqDto.getUsername());
 
-                Authentication authentication = this.authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                userLoginReqDto.getUsername(), userLoginReqDto.getPassword()));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                final User user = (User) authentication.getPrincipal();
-
-                String userToken = jwtTokenUtils.getJWTToken(user);
-//TODO: ME QUEDE AQuÍ
+            String userToken = jwtTokenUtils.getJWTToken(user, userLoginReqDto.getSaveLogin());
+this.log.info("EL TOKEN");
             response.addHeader("Authorization", userToken);
+            return ResponseEntity.ok(UserLoginResDto.builder() //
+                    .username(user.getUsername()) //
+                    .email(user.getEmail()) //
+                    .token(userToken) //
+                    .build());
 
         } catch (UsernameNotFoundException e) {
             this.log.error("[USER][POST][LOGIN]Request for login failed : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        //Check if user exists -- DONE
-
-
-        //Compare passwords -- DONE
-
-        //build token
-
-        //return token in header
     }
-
-    @GetMapping("/{username}")
-    public User getUser(@PathVariable String username) {
-        final User user = userRepository.findByUserName(username);
-        return this.userMapper.mapUserToUserInfoDto(user);
-    }
-
 
     //private methods
     private void sendRegistrationMail(final User user) throws MessagingException {

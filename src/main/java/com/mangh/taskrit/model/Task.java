@@ -34,4 +34,7 @@ public class Task {
     @Column(length = 2)
     private Integer pending;
 
+    @ManyToOne
+    @JoinColumn(name = "listId")
+    private List list;
 }

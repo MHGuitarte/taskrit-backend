@@ -15,4 +15,5 @@ public class UserLoginReqDto implements Serializable {
 
     private String username;
     private transient String password;
+    private Boolean saveLogin = false;
 }
