@@ -63,27 +63,26 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserLoginResDto> login(@RequestBody UserLoginReqDto userLoginReqDto,
-                                                 HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<UserLoginResDto> login(@RequestBody UserLoginReqDto userLoginReqDto) {
         this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
-
-        //TODO: USAR ESTO PARA CHECKEAR EL TOKEN (HAY QUE INTENTAR CONSTRUIRLO PRIMERO Y LUEGO PROBARLO EN UN ENDPOINT CUALQUIERA)
-        if(!this.jwtAuthorizationToken.checkToken(request)) {
-            this.log.error("Unauthorized webtoken provided".toUpperCase());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         try {
             final User user = this.userService.findByUsername(userLoginReqDto.getUsername());
 
+            if(!this.userMapper.checkPasswords(user, userLoginReqDto)) {
+                this.log.error("[USER][POST][LOGIN]Username or password incorrect");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             String userToken = jwtTokenUtils.getJWTToken(user, userLoginReqDto.getSaveLogin());
-this.log.info("EL TOKEN");
-            response.addHeader("Authorization", userToken);
-            return ResponseEntity.ok(UserLoginResDto.builder() //
-                    .username(user.getUsername()) //
-                    .email(user.getEmail()) //
-                    .token(userToken) //
-                    .build());
+
+            return ResponseEntity.ok()
+                    .header("Authorization", userToken) //
+                    .body(UserLoginResDto.builder() //
+                            .username(user.getUsername()) //
+                            .email(user.getEmail()) //
+                            .token(userToken) //
+                            .build());
 
         } catch (UsernameNotFoundException e) {
             this.log.error("[USER][POST][LOGIN]Request for login failed : {}", e.getMessage());

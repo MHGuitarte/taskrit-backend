@@ -14,5 +14,7 @@ public class UserLoginResDto {
     private String username;
     private String email;
     private String token;
+
+    @Builder.Default
     private String tokenType = "Bearer";
 }

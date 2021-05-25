@@ -1,11 +1,13 @@
 package com.mangh.taskrit.util.pojo;
 
+import com.mangh.taskrit.dto.request.UserLoginReqDto;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.util.poji.JWTTokenUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -26,11 +28,6 @@ public class JWTTokenUtilsImpl implements JWTTokenUtils {
     @Override
     public String getJWTToken(final User user, final Boolean saveLogin) {
         return buildToken(user, saveLogin);
-    }
-
-    @Override
-    public boolean checkToken(final String requestPass, final String userPass) {
-        return requestPass.equals(userPass); //USELESS??
     }
 
     private String buildToken(final User user, final Boolean saveLogin) {

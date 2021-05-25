@@ -41,9 +41,9 @@ public class JWTAuthorizationToken {
     }
 
     private boolean setUpAuthentication(final Claims claims) {
-        final UserRole role = (UserRole) claims.get("authority");
+        final String role = (String) claims.get("authority");
 
-        return Arrays.asList(UserRole.values()).contains(role);
+        return Arrays.asList(UserRole.values()).contains(UserRole.valueOf(role));
     }
 
     private boolean checkJWTToken(final HttpServletRequest request) {
