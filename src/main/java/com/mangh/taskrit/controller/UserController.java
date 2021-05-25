@@ -4,6 +4,7 @@ import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.UserLoginReqDto;
 import com.mangh.taskrit.dto.request.UserRegisterReqDto;
 import com.mangh.taskrit.dto.response.UserLoginResDto;
+import com.mangh.taskrit.dto.response.UserRegisterResDto;
 import com.mangh.taskrit.mapper.poji.UserMapper;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.service.poji.UserService;
@@ -16,8 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/user")
@@ -29,19 +28,17 @@ public class UserController {
     private final UserService userService;
     private final EmailService emailService;
     private final JWTTokenUtils jwtTokenUtils;
-    private final JWTAuthorizationToken jwtAuthorizationToken;
 
     public UserController(UserService userService, UserMapper userMapper, EmailService emailService,
-                          JWTTokenUtils jwtTokenUtils, JWTAuthorizationToken jwtAuthorizationToken) {
+                          JWTTokenUtils jwtTokenUtils) {
         this.userMapper = userMapper;
         this.emailService = emailService;
         this.jwtTokenUtils = jwtTokenUtils;
         this.userService = userService;
-        this.jwtAuthorizationToken = jwtAuthorizationToken;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> saveUser(@RequestBody UserRegisterReqDto userRegisterReqDto) {
+    public ResponseEntity<UserRegisterResDto> saveUser(@RequestBody UserRegisterReqDto userRegisterReqDto) {
         this.log.info("[USER][POST][NEW]Request for register new user");
 
         final User user = this.userMapper.mapUserRegisterReqToUser(userRegisterReqDto);
@@ -69,7 +66,7 @@ public class UserController {
         try {
             final User user = this.userService.findByUsername(userLoginReqDto.getUsername());
 
-            if(!this.userMapper.checkPasswords(user, userLoginReqDto)) {
+            if (!this.userMapper.checkPasswords(user, userLoginReqDto)) {
                 this.log.error("[USER][POST][LOGIN]Username or password incorrect");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
