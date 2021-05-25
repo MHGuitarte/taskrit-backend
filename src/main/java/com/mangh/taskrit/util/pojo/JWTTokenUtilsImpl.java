@@ -1,17 +1,13 @@
 package com.mangh.taskrit.util.pojo;
 
-import com.mangh.taskrit.dto.request.UserLoginReqDto;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.util.poji.JWTTokenUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 public class JWTTokenUtilsImpl implements JWTTokenUtils {

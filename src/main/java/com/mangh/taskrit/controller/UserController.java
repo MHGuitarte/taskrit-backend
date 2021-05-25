@@ -1,6 +1,5 @@
 package com.mangh.taskrit.controller;
 
-import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.UserLoginReqDto;
 import com.mangh.taskrit.dto.request.UserRegisterReqDto;
 import com.mangh.taskrit.dto.response.UserLoginResDto;
@@ -76,8 +75,8 @@ public class UserController {
             return ResponseEntity.ok()
                     .header("Authorization", userToken) //
                     .body(UserLoginResDto.builder() //
+                            .id(user.getUserId().toString()) //
                             .username(user.getUsername()) //
-                            .email(user.getEmail()) //
                             .token(userToken) //
                             .build());
 

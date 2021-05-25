@@ -9,12 +9,5 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginResDto {
-
-    private String id;
-    private String username;
-    private String token;
-
-    @Builder.Default
-    private String tokenType = "Bearer";
+public class BoardResDto {
 }

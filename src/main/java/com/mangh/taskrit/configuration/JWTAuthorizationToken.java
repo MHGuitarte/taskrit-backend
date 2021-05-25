@@ -17,10 +17,10 @@ public class JWTAuthorizationToken {
 
     private final Logger log = new Logger(this.getClass().getName());
 
-    public boolean checkToken(final HttpServletRequest request) {
+    public boolean checkToken(final String userToken) {
         try {
-            if (this.checkJWTToken(request)) {
-                final Claims claims = this.validateToken(request);
+            if (this.checkJWTToken(userToken)) {
+                final Claims claims = this.validateToken(userToken);
                 if (claims.get("authority") != null) {
                     if (this.setUpAuthentication(claims)) {
                         return true;
@@ -35,8 +35,8 @@ public class JWTAuthorizationToken {
         }
     }
 
-    private Claims validateToken(final HttpServletRequest request) {
-        final String jwtToken = request.getHeader(this.HEADER).replace(this.PREFIX, "");
+    private Claims validateToken(final String userToken) {
+        final String jwtToken = userToken.replace(this.PREFIX, "");
         return Jwts.parser().setSigningKey(this.SECRET.getBytes()).parseClaimsJws(jwtToken).getBody();
     }
 
@@ -46,9 +46,7 @@ public class JWTAuthorizationToken {
         return Arrays.asList(UserRole.values()).contains(UserRole.valueOf(role));
     }
 
-    private boolean checkJWTToken(final HttpServletRequest request) {
-        final String authenticationHeader = request.getHeader(this.HEADER);
-
+    private boolean checkJWTToken(final String authenticationHeader) {
         return authenticationHeader != null && authenticationHeader.startsWith(this.PREFIX);
     }
 }
