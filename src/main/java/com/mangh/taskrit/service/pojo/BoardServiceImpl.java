@@ -2,14 +2,22 @@ package com.mangh.taskrit.service.pojo;
 
 import com.mangh.taskrit.model.Board;
 import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.repository.BoardRepository;
 import com.mangh.taskrit.service.poji.BoardService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class BoardServiceImpl implements BoardService {
+
+    private BoardRepository boardRepository;
+
+    public BoardServiceImpl(BoardRepository boardRepository) {
+        this.boardRepository = boardRepository;
+    }
 
     @Override
     public Board create(Board board) {
@@ -22,7 +30,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Board getBoard(UUID boardId) {
-        return null;
+    public Optional<Board> getBoardById(UUID boardId) {
+        return this.boardRepository.findById(boardId);
     }
 }

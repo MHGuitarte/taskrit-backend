@@ -4,6 +4,7 @@ import com.mangh.taskrit.model.Board;
 import com.mangh.taskrit.model.BoardRole;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BoardService {
@@ -12,5 +13,5 @@ public interface BoardService {
 
     List<Board> getBoardsByUserAndRole (final BoardRole boardRole);
 
-    Board getBoard (final UUID boardId);
+    Optional<Board> getBoardById (final UUID boardId);
 }
