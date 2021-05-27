@@ -3,6 +3,7 @@ package com.mangh.taskrit.controller;
 import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.BoardReqDto;
 import com.mangh.taskrit.dto.response.BoardResDto;
+import com.mangh.taskrit.mapper.poji.BoardMapper;
 import com.mangh.taskrit.model.Board;
 import com.mangh.taskrit.model.BoardRole;
 import com.mangh.taskrit.model.User;
@@ -30,6 +31,7 @@ public class BoardController {
     private BoardRoleService boardRoleService;
     private BoardService boardService;
     private UserService userService;
+    private BoardMapper boardMapper;
 
     public BoardController(JWTAuthorizationToken jwtAuthorizationToken, BoardRoleService boardRoleService, BoardService boardService, UserService userService) {
 
@@ -41,6 +43,15 @@ public class BoardController {
 
     @PostMapping ("/create")
     public ResponseEntity<BoardResDto> createBoard(@RequestBody BoardReqDto boardReqDto) {
+
+        //Create board
+        final Board board = this.boardMa
+
+        //Find user
+
+        //Create BoardRole
+
+        //BuildResponse
 
     }
 

@@ -14,9 +14,7 @@ import java.io.Serializable;
 public class BoardReqDto implements Serializable {
 
     private String userId;
-    private String boardId;
     private String name;
     private String description;
-
 
 }
