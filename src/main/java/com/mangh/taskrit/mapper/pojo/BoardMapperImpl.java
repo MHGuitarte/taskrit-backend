@@ -23,7 +23,7 @@ public class BoardMapperImpl implements BoardMapper {
     }
 
     @Override
-    public BoardRole mapBoardAndUserToBoardRole(User user, Board board) {
+    public BoardRole mapBoardAndUserToBoardRole(final Board board, final User user) {
         final BoardRole boardRole = new BoardRole();
 
         boardRole.setUser(user);

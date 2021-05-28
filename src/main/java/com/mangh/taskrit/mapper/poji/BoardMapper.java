@@ -9,5 +9,5 @@ public interface BoardMapper {
 
     Board mapBoardReqDtoToBoard (final BoardReqDto boardReqDto);
 
-    BoardRole mapBoardAndUserToBoardRole(final User user, final Board board);
+    BoardRole mapBoardAndUserToBoardRole(final Board board, final User user);
 }

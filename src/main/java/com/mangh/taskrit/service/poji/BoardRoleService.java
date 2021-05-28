@@ -5,6 +5,8 @@ import com.mangh.taskrit.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public interface BoardRoleService {
@@ -13,5 +15,5 @@ public interface BoardRoleService {
 
     List<BoardRole> getBoardRolesByUserId(final User user);
 
-    BoardRole getBoardRole(final String boardRoleId);
+    Optional<BoardRole> getBoardRoleById(final UUID boardRoleId);
 }

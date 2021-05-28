@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -15,4 +16,7 @@ public interface BoardRoleRepository extends JpaRepository<BoardRole, UUID> {
     <S extends BoardRole> S save(S s);
 
     List<BoardRole> findAllByUser(User user);
+
+    @Override
+    Optional<BoardRole> findById(UUID uuid);
 }

@@ -33,26 +33,48 @@ public class BoardController {
     private UserService userService;
     private BoardMapper boardMapper;
 
-    public BoardController(JWTAuthorizationToken jwtAuthorizationToken, BoardRoleService boardRoleService, BoardService boardService, UserService userService) {
+    public BoardController(JWTAuthorizationToken jwtAuthorizationToken, BoardRoleService boardRoleService, BoardService boardService, UserService userService, BoardMapper boardMapper) {
 
         this.jwtAuthorizationToken = jwtAuthorizationToken;
         this.boardRoleService = boardRoleService;
         this.boardService = boardService;
         this.userService = userService;
+        this.boardMapper = boardMapper;
     }
 
-    @PostMapping ("/create")
-    public ResponseEntity<BoardResDto> createBoard(@RequestBody BoardReqDto boardReqDto) {
+    @PostMapping("/create")
+    public ResponseEntity<BoardRole> createBoard(@RequestHeader("Authorization") final String userToken,
+                                                 @RequestBody BoardReqDto boardReqDto) {
 
-        //Create board
-        final Board board = this.boardMa
+        //check token
+        if (!this.jwtAuthorizationToken.checkToken(userToken)) {
+            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            //Create board
+            final Board board = this.boardService.create(this.boardMapper.mapBoardReqDtoToBoard(boardReqDto));
 
-        //Find user
+            //Find user
+            final UUID userId = UUID.fromString(boardReqDto.getUserId());
 
-        //Create BoardRole
+            System.out.println(userId);
 
-        //BuildResponse
+            final User user = this.userService.findById(userId).orElseThrow(() -> new Exception("User not found"));
 
+            //Create BoardRole
+            final BoardRole boardRole = this.boardRoleService.create(
+                    this.boardMapper.mapBoardAndUserToBoardRole(board, user));
+
+            //BuildResponse
+            //TODO: ALGO PASA CON ESTA LLAMADA QUE PETA DESPUES DE CREAR EL BOARD ROLE
+
+            return ResponseEntity.ok().body(boardRole);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/{userId}")
@@ -70,7 +92,7 @@ public class BoardController {
 
         final List<BoardRole> userBoardRoles = this.boardRoleService.getBoardRolesByUserId(user);
 
-        for(BoardRole br : userBoardRoles) {
+        for (BoardRole br : userBoardRoles) {
             Optional<Board> board = this.boardService.getBoardById(br.getBoard().getBoardId());
             //TODO pillar boards, mapearlos junto a los roles en la respuesta y meterlo en boardList
         }

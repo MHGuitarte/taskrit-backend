@@ -4,9 +4,13 @@ import com.mangh.taskrit.model.BoardRole;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.repository.BoardRoleRepository;
 import com.mangh.taskrit.service.poji.BoardRoleService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+@Service
 public class BoardRoleServiceImpl implements BoardRoleService {
 
     private BoardRoleRepository boardRoleRepository;
@@ -17,7 +21,7 @@ public class BoardRoleServiceImpl implements BoardRoleService {
 
     @Override
     public BoardRole create(final BoardRole boardRole) {
-        return null;
+        return this.boardRoleRepository.save(boardRole);
     }
 
     @Override
@@ -26,7 +30,7 @@ public class BoardRoleServiceImpl implements BoardRoleService {
     }
 
     @Override
-    public BoardRole getBoardRole(String boardRoleId) {
-        return null;
+    public Optional<BoardRole> getBoardRoleById(final UUID boardRoleId) {
+        return this.boardRoleRepository.findById(boardRoleId);
     }
 }

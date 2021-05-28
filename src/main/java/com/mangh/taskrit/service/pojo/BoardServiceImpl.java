@@ -21,7 +21,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Board create(Board board) {
-        return null;
+        return this.boardRepository.save(board);
     }
 
     @Override
