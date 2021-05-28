@@ -66,6 +66,8 @@ public class BoardController {
             final BoardRole boardRole = this.boardRoleService.create(
                     this.boardMapper.mapBoardAndUserToBoardRole(board, user));
 
+            System.out.println(boardRole);
+
             //BuildResponse
             //TODO: ALGO PASA CON ESTA LLAMADA QUE PETA DESPUES DE CREAR EL BOARD ROLE
 
