@@ -1,6 +1,7 @@
 package com.mangh.taskrit.dto.response;
 
-import com.mangh.taskrit.model.Board;
+import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.model.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +15,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class BoardResDto implements Serializable {
 
-    private Board board;
+    private String boardId;
+    private String boardName;
+    private String boardDescription;
+    private BoardRole boardRole;
+    private java.util.List<List> boardLists;
+
 }

@@ -34,7 +34,7 @@ public class User {
 
     @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = false)
-    private List<BoardRole> boards = new ArrayList<>();
+    private List<BoardInfo> boards = new ArrayList<>();
 
     @Column
     private Boolean enabled;

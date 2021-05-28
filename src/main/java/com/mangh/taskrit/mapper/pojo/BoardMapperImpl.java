@@ -1,13 +1,12 @@
 package com.mangh.taskrit.mapper.pojo;
 
 import com.mangh.taskrit.dto.request.BoardReqDto;
+import com.mangh.taskrit.dto.response.BoardResDto;
 import com.mangh.taskrit.mapper.poji.BoardMapper;
 import com.mangh.taskrit.model.Board;
-import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.model.User;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 public class BoardMapperImpl implements BoardMapper {
@@ -23,12 +22,23 @@ public class BoardMapperImpl implements BoardMapper {
     }
 
     @Override
-    public BoardRole mapBoardAndUserToBoardRole(final Board board, final User user) {
-        final BoardRole boardRole = new BoardRole();
+    public BoardInfo mapBoardAndUserToBoardRole(final Board board, final User user) {
+        final BoardInfo boardInfo = new BoardInfo();
 
-        boardRole.setUser(user);
-        boardRole.setBoard(board);
+        boardInfo.setUser(user);
+        boardInfo.setBoard(board);
 
-        return boardRole;
+        return boardInfo;
+    }
+
+    @Override
+    public BoardResDto mapBoardInfoToBoardResDto(BoardInfo boardInfo) {
+        return BoardResDto.builder()
+                .boardId(boardInfo.getBoardInfoId().toString())
+                .boardName(boardInfo.getBoard().getName())
+                .boardDescription(boardInfo.getBoard().getDescription())
+                .boardRole(boardInfo.getRoleType())
+                .boardLists(boardInfo.getBoard().getLists())
+                .build();
     }
 }

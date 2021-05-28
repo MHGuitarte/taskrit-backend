@@ -5,7 +5,7 @@ import com.mangh.taskrit.dto.request.BoardReqDto;
 import com.mangh.taskrit.dto.response.BoardResDto;
 import com.mangh.taskrit.mapper.poji.BoardMapper;
 import com.mangh.taskrit.model.Board;
-import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.service.poji.BoardRoleService;
 import com.mangh.taskrit.service.poji.BoardService;
@@ -43,8 +43,8 @@ public class BoardController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BoardRole> createBoard(@RequestHeader("Authorization") final String userToken,
-                                                 @RequestBody BoardReqDto boardReqDto) {
+    public ResponseEntity<BoardResDto> createBoard(@RequestHeader("Authorization") final String userToken,
+                                                   @RequestBody BoardReqDto boardReqDto) {
 
         //check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
@@ -58,18 +58,13 @@ public class BoardController {
             //Find user
             final UUID userId = UUID.fromString(boardReqDto.getUserId());
 
-            System.out.println(userId);
-
             final User user = this.userService.findById(userId).orElseThrow(() -> new Exception("User not found"));
 
             //Create BoardRole
-            final BoardRole boardRole = this.boardRoleService.create(
+            final BoardInfo boardInfo = this.boardRoleService.create(
                     this.boardMapper.mapBoardAndUserToBoardRole(board, user));
 
-            //BuildResponse
-            //TODO: ALGO PASA CON ESTA LLAMADA QUE PETA DESPUES DE CREAR EL BOARD ROLE
-
-            return ResponseEntity.ok().body(boardRole);
+            return ResponseEntity.ok().body(this.boardMapper.mapBoardInfoToBoardResDto(boardInfo));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,8 +73,8 @@ public class BoardController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<BoardResDto>> getBoardsByUser(@RequestHeader("Authorization") final String userToken,
-                                                             @PathParam("userId") final String userId) throws Exception {
+    public ResponseEntity<List<BoardResDto>> getUserBoards(@RequestHeader("Authorization") final String userToken,
+                                                           @PathVariable String userId) throws Exception {
         //check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
             this.log.error("Unauthorized webtoken provided".toUpperCase());
@@ -87,16 +82,15 @@ public class BoardController {
         }
 
         final List<BoardResDto> boardList = new ArrayList<>();
-
+        System.out.println(userId);
         final User user = this.userService.findById(UUID.fromString(userId)).orElseThrow(() -> new Exception("User not found"));
 
-        final List<BoardRole> userBoardRoles = this.boardRoleService.getBoardRolesByUserId(user);
+        final List<BoardInfo> userBoardInfos = this.boardRoleService.getBoardRolesByUserId(user);
 
-        for (BoardRole br : userBoardRoles) {
-            Optional<Board> board = this.boardService.getBoardById(br.getBoard().getBoardId());
-            //TODO pillar boards, mapearlos junto a los roles en la respuesta y meterlo en boardList
+        for (BoardInfo br : userBoardInfos) {
+            boardList.add(this.boardMapper.mapBoardInfoToBoardResDto(br));
         }
 
-        return ResponseEntity.ok(boardList); //TODO finally clause?
+        return ResponseEntity.ok(boardList);
     }
 }

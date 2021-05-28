@@ -1,7 +1,7 @@
 package com.mangh.taskrit.service.pojo;
 
 import com.mangh.taskrit.model.Board;
-import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.repository.BoardRepository;
 import com.mangh.taskrit.service.poji.BoardService;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<Board> getBoardsByUserAndRole(BoardRole boardRole) {
+    public List<Board> getBoardsByUserAndRole(BoardInfo boardInfo) {
         return null;
     }
 

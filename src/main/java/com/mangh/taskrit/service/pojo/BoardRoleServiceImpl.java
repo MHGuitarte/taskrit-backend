@@ -1,6 +1,6 @@
 package com.mangh.taskrit.service.pojo;
 
-import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.repository.BoardRoleRepository;
 import com.mangh.taskrit.service.poji.BoardRoleService;
@@ -20,17 +20,17 @@ public class BoardRoleServiceImpl implements BoardRoleService {
     }
 
     @Override
-    public BoardRole create(final BoardRole boardRole) {
-        return this.boardRoleRepository.save(boardRole);
+    public BoardInfo create(final BoardInfo boardInfo) {
+        return this.boardRoleRepository.save(boardInfo);
     }
 
     @Override
-    public List<BoardRole> getBoardRolesByUserId(final User user) {
+    public List<BoardInfo> getBoardRolesByUserId(final User user) {
         return boardRoleRepository.findAllByUser(user);
     }
 
     @Override
-    public Optional<BoardRole> getBoardRoleById(final UUID boardRoleId) {
+    public Optional<BoardInfo> getBoardRoleById(final UUID boardRoleId) {
         return this.boardRoleRepository.findById(boardRoleId);
     }
 }

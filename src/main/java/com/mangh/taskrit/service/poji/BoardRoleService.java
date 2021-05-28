@@ -1,6 +1,6 @@
 package com.mangh.taskrit.service.poji;
 
-import com.mangh.taskrit.model.BoardRole;
+import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.model.User;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,9 @@ import java.util.UUID;
 @Service
 public interface BoardRoleService {
 
-    BoardRole create(final BoardRole boardRole);
+    BoardInfo create(final BoardInfo boardInfo);
 
-    List<BoardRole> getBoardRolesByUserId(final User user);
+    List<BoardInfo> getBoardRolesByUserId(final User user);
 
-    Optional<BoardRole> getBoardRoleById(final UUID boardRoleId);
+    Optional<BoardInfo> getBoardRoleById(final UUID boardRoleId);
 }
