@@ -16,6 +16,7 @@ public class UserLoginResDto implements Serializable {
     private String id;
     private String username;
     private String token;
+    private Boolean saveLogin;
 
     @Builder.Default
     private String tokenType = "Bearer";

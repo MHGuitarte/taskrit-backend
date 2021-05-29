@@ -44,22 +44,26 @@ public class UserController {
     public ResponseEntity<UserRegisterResDto> saveUser(@RequestBody UserRegisterReqDto userRegisterReqDto) {
         this.log.info("[USER][POST][NEW]Request for register new user");
 
+        // map and create user
+
         final User user = this.userMapper.mapUserRegisterReqToUser(userRegisterReqDto);
         final User createdUser = this.userService.create(user);
 
         this.log.info("[USER][POST][NEW] User {} successfully added. Sending confirmation mail to user",
                 user.getUserId().toString());
 
-        return ResponseEntity.ok(this.userMapper.mapUserToUserRegisterRes(createdUser));
+        // send confirmation mail
 /*
         try {
-            this.sendRegistrationMail(createdUser); //TODO: AuthenticationFailedException a la hora de mandar correo
+            this.sendRegistrationMail(createdUser);
 
         } catch (MessagingException e) {
             return ResponseEntity.badRequest().body("Mail Service Unavailable, registration mail will not be sended.");
         }
 
 */
+
+        return ResponseEntity.ok(this.userMapper.mapUserToUserRegisterRes(createdUser));
     }
 
     @PostMapping("/login")
@@ -67,13 +71,16 @@ public class UserController {
         this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
 
         try {
+            //get user
             final User user = this.userService.findByUsername(userLoginReqDto.getUsername());
 
+            //check passwords
             if (!this.userMapper.checkPasswords(user, userLoginReqDto)) {
                 this.log.error("[USER][POST][LOGIN]Username or password incorrect");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
+            //build token
             String userToken = jwtTokenUtils.getJWTToken(user, userLoginReqDto.getSaveLogin());
 
             return ResponseEntity.ok()
@@ -82,6 +89,7 @@ public class UserController {
                             .id(user.getUserId().toString()) //
                             .username(user.getUsername()) //
                             .token(userToken) //
+                            .saveLogin(userLoginReqDto.getSaveLogin()) //
                             .build());
 
         } catch (UsernameNotFoundException e) {
@@ -102,8 +110,9 @@ public class UserController {
 
     //private methods
     private void sendRegistrationMail(final User user) throws MessagingException {
+        //TODO: AuthenticationFailedException a la hora de mandar correo
         this.emailService.sendSimpleMessage(user.getEmail(),
                 "Tu cuenta en TaskrIt ha sido creada correctamente",
-                "patata");
+                "Correo de prueba");
     }
 }
