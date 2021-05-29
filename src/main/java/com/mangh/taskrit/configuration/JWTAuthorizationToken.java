@@ -1,11 +1,12 @@
 package com.mangh.taskrit.configuration;
 
+import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.model.UserRole;
+import com.mangh.taskrit.service.poji.UserService;
 import com.mangh.taskrit.util.pojo.Logger;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 @Component
@@ -17,14 +18,20 @@ public class JWTAuthorizationToken {
 
     private final Logger log = new Logger(this.getClass().getName());
 
+    private UserService userService;
+
+    public JWTAuthorizationToken(UserService userService) {
+        this.userService = userService;
+    }
+
     public boolean checkToken(final String userToken) {
         try {
             if (this.checkJWTToken(userToken)) {
                 final Claims claims = this.validateToken(userToken);
-                if (claims.get("authority") != null) {
-                    if (this.setUpAuthentication(claims)) {
-                        return true;
-                    }
+                if (claims.get("authority") != null && this.setUpAuthentication(claims)) {
+                    final User user = this.userService.findByUsername(claims.getSubject());
+                    
+                    return user.isEnabled();
                 }
             }
 

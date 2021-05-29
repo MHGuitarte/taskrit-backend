@@ -1,5 +1,6 @@
 package com.mangh.taskrit.controller;
 
+import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.UserLoginReqDto;
 import com.mangh.taskrit.dto.request.UserRegisterReqDto;
 import com.mangh.taskrit.dto.response.UserLoginResDto;
@@ -19,6 +20,7 @@ import javax.mail.MessagingException;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     private final Logger log = new Logger(UserController.class.getName());
@@ -27,13 +29,15 @@ public class UserController {
     private final UserService userService;
     private final EmailService emailService;
     private final JWTTokenUtils jwtTokenUtils;
+    private JWTAuthorizationToken jwtAuthorizationToken;
 
     public UserController(UserService userService, UserMapper userMapper, EmailService emailService,
-                          JWTTokenUtils jwtTokenUtils) {
+                          JWTTokenUtils jwtTokenUtils, JWTAuthorizationToken jwtAuthorizationToken) {
         this.userMapper = userMapper;
         this.emailService = emailService;
         this.jwtTokenUtils = jwtTokenUtils;
         this.userService = userService;
+        this.jwtAuthorizationToken = jwtAuthorizationToken;
     }
 
     @PostMapping("/register")
@@ -84,6 +88,16 @@ public class UserController {
             this.log.error("[USER][POST][LOGIN]Request for login failed : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    @PostMapping("/checkToken")
+    public ResponseEntity<Boolean> checkToken(@RequestHeader("Authorization") final String userToken) {
+        if (!this.jwtAuthorizationToken.checkToken(userToken)) {
+            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+
+        return ResponseEntity.ok(true);
     }
 
     //private methods

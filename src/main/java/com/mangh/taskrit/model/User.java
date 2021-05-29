@@ -3,6 +3,7 @@ package com.mangh.taskrit.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.util.*;
 import java.util.List;
@@ -37,5 +38,5 @@ public class User {
     private List<BoardInfo> boards = new ArrayList<>();
 
     @Column
-    private Boolean enabled;
+    private boolean enabled = true;
 }
