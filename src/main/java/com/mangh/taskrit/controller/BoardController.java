@@ -32,7 +32,8 @@ public class BoardController {
     private UserService userService;
     private BoardMapper boardMapper;
 
-    public BoardController(JWTAuthorizationToken jwtAuthorizationToken, BoardRoleService boardRoleService, BoardService boardService, UserService userService, BoardMapper boardMapper) {
+    public BoardController(JWTAuthorizationToken jwtAuthorizationToken, BoardRoleService boardRoleService,
+                           BoardService boardService, UserService userService, BoardMapper boardMapper) {
 
         this.jwtAuthorizationToken = jwtAuthorizationToken;
         this.boardRoleService = boardRoleService;
@@ -81,7 +82,6 @@ public class BoardController {
         }
 
         final List<BoardResDto> boardList = new ArrayList<>();
-        System.out.println(userId);
         final User user = this.userService.findById(UUID.fromString(userId)).orElseThrow(() -> new Exception("User not found"));
 
         final List<BoardInfo> userBoardInfos = this.boardRoleService.getBoardRolesByUserId(user);
