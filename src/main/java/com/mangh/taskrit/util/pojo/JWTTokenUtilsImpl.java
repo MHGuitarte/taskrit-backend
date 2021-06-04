@@ -13,7 +13,7 @@ import java.util.Date;
 public class JWTTokenUtilsImpl implements JWTTokenUtils {
 
     @Value("${user.token.expiration}")
-    private long EXPIRATION_TOKEN; //2 day expiration
+    private long EXPIRATION_TOKEN; //1 day expiration
 
     @Value("${persist.login.token.expiration}")
     private long SAVE_LOGIN_TOKEN; //1 week expiration
