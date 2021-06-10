@@ -45,6 +45,7 @@ public class BoardController {
     @PostMapping("/create")
     public ResponseEntity<BoardResDto> createBoard(@RequestHeader("Authorization") final String userToken,
                                                    @RequestBody BoardReqDto boardReqDto) {
+        this.log.info("[BOARD][POST][CREATE] Request for create new board");
 
         //check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
@@ -64,10 +65,12 @@ public class BoardController {
             final BoardInfo boardInfo = this.boardRoleService.create(
                     this.boardMapper.mapBoardAndUserToBoardRole(board, user));
 
+            this.log.info("[BOARD][POST][CREATE]Board created successfully");
+
             return ResponseEntity.ok().body(this.boardMapper.mapBoardInfoToBoardResDto(boardInfo));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            this.log.error("[BOARD][POST][CREATE] Error creating new board : {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -75,6 +78,8 @@ public class BoardController {
     @GetMapping("/{userId}")
     public ResponseEntity<List<BoardResDto>> getUserBoards(@RequestHeader("Authorization") final String userToken,
                                                            @PathVariable String userId) throws Exception {
+        this.log.info("[BOARD][GET][BY USER] Request for get user boards");
+
         //check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
             this.log.error("Unauthorized webtoken provided".toUpperCase());
@@ -82,7 +87,8 @@ public class BoardController {
         }
 
         final List<BoardResDto> boardList = new ArrayList<>();
-        final User user = this.userService.findById(UUID.fromString(userId)).orElseThrow(() -> new Exception("User not found"));
+        final User user = this.userService.findById(
+                UUID.fromString(userId)).orElseThrow(() -> new Exception("User not found"));
 
         final List<BoardInfo> userBoardInfos = this.boardRoleService.getBoardRolesByUserId(user);
 
@@ -90,6 +96,34 @@ public class BoardController {
             boardList.add(this.boardMapper.mapBoardInfoToBoardResDto(br));
         }
 
+        this.log.info("[BOARD][POST][BY USER]Board list obtained successfully");
         return ResponseEntity.ok(boardList);
+    }
+
+    @GetMapping("/{userId}/{boardId}")
+    public ResponseEntity<BoardResDto> getBoardDetails(@RequestHeader("Authorization") final String userToken,
+                                                       @PathVariable String userId,
+                                                       @PathVariable String boardId) throws Exception {
+        this.log.info("[BOARD][GET][BY ID] Request for get board details");
+
+        //check token
+        if (!this.jwtAuthorizationToken.checkToken(userToken)) {
+            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        final User user = userService.findById(UUID.fromString(userId)).orElse(new User());
+
+        final BoardInfo boardInfo = this.boardRoleService
+                .getBoardRoleById(UUID.fromString(boardId)).orElseThrow(() -> new Exception("Board not found"));
+
+        if (user.getUserId() != null && user.getUserId() == boardInfo.getUser().getUserId()) {
+            this.log.info("[BOARD][GET][BY ID]Board details obtained succesfully. Returning board info.");
+            return ResponseEntity.ok(this.boardMapper.mapBoardInfoToBoardResDto(boardInfo));
+        }
+
+        this.log.error("[BOARD][GET][BY ID] Requesting user has no relationship with requested board");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

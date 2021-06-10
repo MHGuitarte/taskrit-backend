@@ -81,13 +81,15 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            if(!user.isEnabled()) {
+            if (!user.isEnabled()) {
                 this.log.error("[USER][POST][LOGIN]User is not enabled for login");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
             //build token
             String userToken = jwtTokenUtils.getJWTToken(user, userLoginReqDto.getSaveLogin());
+
+            this.log.info("[USER][POST][LOGIN]User {} successfully logged. Sending user info", user.getUsername());
 
             return ResponseEntity.ok()
                     .header("Authorization", userToken) //

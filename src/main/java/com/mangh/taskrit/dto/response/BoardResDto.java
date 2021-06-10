@@ -19,6 +19,6 @@ public class BoardResDto implements Serializable {
     private String boardName;
     private String boardDescription;
     private BoardRole boardRole;
-    private java.util.List<List> boardLists;
+    private java.util.List<ListResDto> boardLists;
 
 }

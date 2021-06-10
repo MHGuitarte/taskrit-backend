@@ -3,6 +3,7 @@ package com.mangh.taskrit.mapper.pojo;
 import com.mangh.taskrit.dto.request.BoardReqDto;
 import com.mangh.taskrit.dto.response.BoardResDto;
 import com.mangh.taskrit.mapper.poji.BoardMapper;
+import com.mangh.taskrit.mapper.poji.ListMapper;
 import com.mangh.taskrit.model.Board;
 import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.model.User;
@@ -10,6 +11,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BoardMapperImpl implements BoardMapper {
+
+    private ListMapper listMapper;
+
+    public BoardMapperImpl(ListMapper listMapper) {
+        this.listMapper = listMapper;
+    }
 
     @Override
     public Board mapBoardReqDtoToBoard(BoardReqDto boardReqDto) {
@@ -38,7 +45,7 @@ public class BoardMapperImpl implements BoardMapper {
                 .boardName(boardInfo.getBoard().getName())
                 .boardDescription(boardInfo.getBoard().getDescription())
                 .boardRole(boardInfo.getRoleType())
-                .boardLists(boardInfo.getBoard().getLists())
+                .boardLists(this.listMapper.mapListsToListsResDtos(boardInfo.getBoard().getLists()))
                 .build();
     }
 }

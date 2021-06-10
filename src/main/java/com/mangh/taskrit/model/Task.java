@@ -16,7 +16,7 @@ public class Task {
     private UUID taskId;
 
     @Column
-    private String name;
+    private String title;
 
     @Column
     private String description;
