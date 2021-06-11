@@ -18,8 +18,8 @@ public class TaskResDto implements Serializable {
     private String description;
     private String responsibleId;
     private Integer effort;
-    private Integer estimate;
-    private Integer pending;
+    private Double estimate;
+    private Double pending;
     private String listId;
 
 }

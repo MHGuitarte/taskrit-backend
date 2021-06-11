@@ -28,11 +28,11 @@ public class Task {
     @Column(length = 3)
     private Integer effort;
 
-    @Column(length = 2)
-    private Integer estimate;
+    @Column(length = 2, precision = 3, scale = 1)
+    private Double estimate;
 
-    @Column(length = 2)
-    private Integer pending;
+    @Column(length = 2, precision = 3, scale = 1)
+    private Double pending;
 
     @ManyToOne
     @JoinColumn(name = "listId")
