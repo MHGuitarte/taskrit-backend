@@ -1,7 +1,9 @@
 package com.mangh.taskrit.model;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -10,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"tasks"})
 public class List {
 
     @Id

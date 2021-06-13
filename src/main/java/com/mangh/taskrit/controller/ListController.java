@@ -3,11 +3,10 @@ package com.mangh.taskrit.controller;
 import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.ListReqDto;
 import com.mangh.taskrit.dto.response.ListResDto;
-import com.mangh.taskrit.mapper.poji.BoardMapper;
 import com.mangh.taskrit.mapper.poji.ListMapper;
-import com.mangh.taskrit.model.Board;
+import com.mangh.taskrit.model.BoardInfo;
 import com.mangh.taskrit.model.List;
-import com.mangh.taskrit.service.poji.BoardService;
+import com.mangh.taskrit.service.poji.BoardRoleService;
 import com.mangh.taskrit.service.poji.ListService;
 import com.mangh.taskrit.util.pojo.Logger;
 import org.springframework.http.HttpStatus;
@@ -24,14 +23,14 @@ public class ListController {
     private final Logger log = new Logger(BoardController.class.getName());
 
     private JWTAuthorizationToken jwtAuthorizationToken;
-    private BoardService boardService;
+    private BoardRoleService boardRoleService;
     private ListService listService;
     private ListMapper listMapper;
 
-    public ListController(JWTAuthorizationToken jwtAuthorizationToken, BoardService boardService,
+    public ListController(JWTAuthorizationToken jwtAuthorizationToken, BoardRoleService boardRoleService,
                           ListService listService, ListMapper listMapper) {
         this.jwtAuthorizationToken = jwtAuthorizationToken;
-        this.boardService = boardService;
+        this.boardRoleService = boardRoleService;
         this.listService = listService;
         this.listMapper = listMapper;
     }
@@ -49,12 +48,13 @@ public class ListController {
         }
 
         // get board to insert list into
-        final Board board = this.boardService
-                .getBoardById(UUID.fromString(listReqDto.getBoardId()))
+        final BoardInfo boardInfo = this.boardRoleService
+                .getBoardRoleById(UUID.fromString(listReqDto.getBoardId()))
                 .orElseThrow(() -> new Exception("Target board not found"));
 
         // map list and create it
-        final List list = this.listService.create(this.listMapper.mapListReqDtoAndBoardToList(listReqDto, board));
+        final List list = this.listService.create(this.listMapper.mapListReqDtoAndBoardToList(listReqDto,
+                boardInfo.getBoard()));
 
         // return new list
         if (list.getListId() != null) {
@@ -79,12 +79,12 @@ public class ListController {
         }
 
         // Get board by id
-        final Board board = this.boardService
-                .getBoardById(UUID.fromString(boardId))
+        final BoardInfo boardInfo = this.boardRoleService
+                .getBoardRoleById(UUID.fromString(boardId))
                 .orElseThrow(() -> new Exception("Target board not found"));
 
         // Get lists by board
-        final java.util.List<List> lists = this.listService.getListsByBoard(board);
+        final java.util.List<List> lists = this.listService.getListsByBoard(boardInfo.getBoard());
 
         // Parse lists and return response
         final java.util.List<ListResDto> listResDtos = this.listMapper.mapListsToListsResDtos(lists);

@@ -20,18 +20,19 @@ public class TaskMapperImpl implements TaskMapper {
         task.setDescription(taskReqDto.getDescription());
         task.setEffort(taskReqDto.getEffort());
         task.setEstimate(taskReqDto.getEstimate());
-        task.setPending(taskReqDto.getPending());
+        task.setPending(taskReqDto.getEstimate());
+        task.setList(list);
 
         return task;
     }
 
     @Override
     public TaskResDto mapTaskToTaskResDto(Task task) {
+    //responsible will be implemented in subsequent implementations
         return TaskResDto.builder()
                 .id(task.getTaskId().toString())
                 .title(task.getTitle())
                 .description(task.getDescription())
-                .responsibleId(task.getResponsible().getUserId().toString())
                 .effort(task.getEffort())
                 .estimate(task.getEstimate())
                 .pending(task.getPending())

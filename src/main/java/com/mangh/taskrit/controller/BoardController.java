@@ -124,6 +124,6 @@ public class BoardController {
 
         this.log.error("[BOARD][GET][BY ID] Requesting user has no relationship with requested board");
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

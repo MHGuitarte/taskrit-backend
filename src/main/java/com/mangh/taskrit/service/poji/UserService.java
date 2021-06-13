@@ -13,7 +13,7 @@ public interface UserService {
 
     Optional<User> findByEmail(final String email);
 
-    User findByUsername(final String username) throws UsernameNotFoundException;
+    Optional<User> findByUsername(final String username) throws UsernameNotFoundException;
 
     Optional<User> findById(final UUID userId);
 

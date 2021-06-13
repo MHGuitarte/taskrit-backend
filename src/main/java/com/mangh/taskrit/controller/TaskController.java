@@ -9,6 +9,7 @@ import com.mangh.taskrit.model.Task;
 import com.mangh.taskrit.service.poji.ListService;
 import com.mangh.taskrit.service.poji.TaskService;
 import com.mangh.taskrit.util.pojo.Logger;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/task")
 @CrossOrigin(origins = "*")
+@Tag(name = "Tasks", description = "Handle task CRUD and extra executions")
 public class TaskController {
 
     private final Logger log = new Logger(BoardController.class.getName());
@@ -38,7 +40,7 @@ public class TaskController {
         this.listService = listService;
     }
 
-    @GetMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<TaskResDto> createList(@RequestHeader("Authorization") final String userToken,
                                                  @RequestBody TaskReqDto taskReqDto) throws Exception {
         this.log.info("[TASK][POST][CREATE]Request for creating new task");
@@ -131,7 +133,9 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Boolean.FALSE);
         }
 
-        this.taskService.changeTaskFromList(list, UUID.fromString(taskId));
+        task.setList(list);
+
+        this.taskService.create(task); // create function does upsert logic
 
         this.log.info("[TASK][PUT][CHANGE LIST]Task list changed successfully");
 
@@ -163,13 +167,13 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Boolean.FALSE);
         }
 
-        this.taskService.changeRemainingTime(pending, UUID.fromString(taskId));
+        task.setPending(pending);
+
+        this.taskService.create(task); // create function does upsert logic
 
         this.log.info("[TASK][PUT][SET PENDING] Pending time changed successfully");
 
         return ResponseEntity.ok(Boolean.TRUE);
     }
-
-    // PUT set remaining
 
 }

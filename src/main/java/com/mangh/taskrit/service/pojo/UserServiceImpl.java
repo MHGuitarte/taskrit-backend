@@ -29,9 +29,8 @@ public class UserServiceImpl implements UserService {
         return this.userRepository.findByEmail(email);
     }
 
-    public User findByUsername(final String username) throws UsernameNotFoundException {
-        return this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public Optional<User> findByUsername(final String username) throws UsernameNotFoundException {
+        return this.userRepository.findByUsername(username);
     }
 
     @Override

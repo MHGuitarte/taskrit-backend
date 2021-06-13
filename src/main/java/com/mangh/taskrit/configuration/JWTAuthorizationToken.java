@@ -29,9 +29,11 @@ public class JWTAuthorizationToken {
             if (this.checkJWTToken(userToken)) {
                 final Claims claims = this.validateToken(userToken);
                 if (claims.get("authority") != null && this.setUpAuthentication(claims)) {
-                    final User user = this.userService.findByUsername(claims.getSubject());
-                    
-                    return user.isEnabled();
+                    final User user = this.userService.findByUsername(claims.getSubject()).orElse(null);
+
+                    if (user != null) {
+                        return user.isEnabled();
+                    }
                 }
             }
 

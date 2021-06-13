@@ -32,14 +32,4 @@ public class TaskServiceImpl implements TaskService {
     public List<Task> getTasksByList(com.mangh.taskrit.model.List list) {
         return this.taskRepository.findAllByList(list);
     }
-
-    @Override
-    public void changeTaskFromList(com.mangh.taskrit.model.List list, UUID taskId) {
-        this.taskRepository.changeTaskList(list, taskId);
-    }
-
-    @Override
-    public void changeRemainingTime(Double pending, UUID taskId) {
-        this.taskRepository.changeRemainingTime(pending, taskId);
-    }
 }

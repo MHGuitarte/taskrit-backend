@@ -13,8 +13,4 @@ public interface TaskService {
     Optional<Task> findById(final UUID taskId);
 
     java.util.List<Task> getTasksByList(final List list);
-
-    void changeTaskFromList(final List list, UUID taskId);
-
-    void changeRemainingTime(final Double pending, UUID taskId);
 }

@@ -1,5 +1,6 @@
 package com.mangh.taskrit.model;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"list"})
 public class Task {
 
     @Id
@@ -34,7 +36,22 @@ public class Task {
     @Column(length = 2, precision = 3, scale = 1)
     private Double pending;
 
-    @ManyToOne
-    @JoinColumn(name = "listId")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "listId", referencedColumnName = "listId")
+    @JsonIgnore
     private List list;
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "taskId=" + taskId +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", responsible=" + responsible +
+                ", effort=" + effort +
+                ", estimate=" + estimate +
+                ", pending=" + pending +
+                ", list=" + list.getListId() +
+                '}';
+    }
 }

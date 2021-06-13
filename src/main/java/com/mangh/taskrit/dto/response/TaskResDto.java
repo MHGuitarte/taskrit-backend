@@ -16,7 +16,8 @@ public class TaskResDto implements Serializable {
     private String id;
     private String title;
     private String description;
-    private String responsibleId;
+    @Builder.Default
+    private String responsibleId = null;
     private Integer effort;
     private Double estimate;
     private Double pending;

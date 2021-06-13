@@ -18,6 +18,5 @@ public class TaskReqDto implements Serializable {
     private String description;
     private Integer effort;
     private Double estimate;
-    private Double pending;
 
 }

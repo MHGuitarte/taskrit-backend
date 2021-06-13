@@ -68,12 +68,12 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResDto> login(@RequestBody UserLoginReqDto userLoginReqDto) {
-        System.out.println(userLoginReqDto);
         this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
 
         try {
             //get user
-            final User user = this.userService.findByUsername(userLoginReqDto.getUsername());
+            final User user = this.userService.findByUsername(userLoginReqDto.getUsername())
+                    .orElse(new User());
 
             //check passwords
             if (!this.userMapper.checkPasswords(user, userLoginReqDto)) {
@@ -85,6 +85,8 @@ public class UserController {
                 this.log.error("[USER][POST][LOGIN]User is not enabled for login");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
+
+            this.log.info("[USER][POST][LOGIN]Login was successful. Returning access token");
 
             //build token
             String userToken = jwtTokenUtils.getJWTToken(user, userLoginReqDto.getSaveLogin());
