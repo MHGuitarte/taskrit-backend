@@ -3,7 +3,6 @@ package com.mangh.taskrit.controller;
 import com.mangh.taskrit.configuration.JWTAuthorizationToken;
 import com.mangh.taskrit.dto.request.TaskReqDto;
 import com.mangh.taskrit.dto.response.TaskResDto;
-import com.mangh.taskrit.mapper.poji.ListMapper;
 import com.mangh.taskrit.mapper.poji.TaskMapper;
 import com.mangh.taskrit.model.Task;
 import com.mangh.taskrit.service.poji.ListService;
@@ -23,20 +22,20 @@ import java.util.UUID;
 @Tag(name = "Tasks", description = "Handle task CRUD and extra executions")
 public class TaskController {
 
+    private static final String TOKEN_ERROR_MESSAGE = "Unauthorized webtoken provided";
+
     private final Logger log = new Logger(BoardController.class.getName());
 
     private JWTAuthorizationToken jwtAuthorizationToken;
     private TaskService taskService;
     private TaskMapper taskMapper;
-    private ListMapper listMapper;
     private ListService listService;
 
     public TaskController(JWTAuthorizationToken jwtAuthorizationToken, TaskService taskService, TaskMapper taskMapper,
-                          ListMapper listMapper, ListService listService) {
+                          ListService listService) {
         this.jwtAuthorizationToken = jwtAuthorizationToken;
         this.taskService = taskService;
         this.taskMapper = taskMapper;
-        this.listMapper = listMapper;
         this.listService = listService;
     }
 
@@ -47,7 +46,7 @@ public class TaskController {
 
         // check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
-            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            this.log.error(TOKEN_ERROR_MESSAGE.toUpperCase());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -68,13 +67,13 @@ public class TaskController {
     }
 
     @GetMapping("/details/{taskId}")
-    ResponseEntity<TaskResDto> getTaskById(@RequestHeader("Authorization") final String userToken,
+    public ResponseEntity<TaskResDto> getTaskById(@RequestHeader("Authorization") final String userToken,
                                            @PathVariable final String taskId) throws Exception {
         this.log.info("[TASK][GET][BY ID]Request for getting task by id");
 
         // check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
-            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            this.log.error(TOKEN_ERROR_MESSAGE.toUpperCase());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -86,13 +85,13 @@ public class TaskController {
     }
 
     @GetMapping("/{listId}")
-    ResponseEntity<List<TaskResDto>> getTasksByList(@RequestHeader("Authorization") final String userToken,
+    public ResponseEntity<List<TaskResDto>> getTasksByList(@RequestHeader("Authorization") final String userToken,
                                                     @PathVariable final String listId) throws Exception {
         this.log.info("[TASK][GET][FROM LIST]Request for getting tasks from list");
 
         // check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
-            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            this.log.error(TOKEN_ERROR_MESSAGE.toUpperCase());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -109,14 +108,14 @@ public class TaskController {
     }
 
     @PutMapping("/move/{taskId}/{listId}")
-    ResponseEntity<Boolean> changeTaskFromList(@RequestHeader("Authorization") final String userToken,
+    public ResponseEntity<Boolean> changeTaskFromList(@RequestHeader("Authorization") final String userToken,
                                                @PathVariable final String taskId,
                                                @PathVariable final String listId) throws Exception {
         this.log.info("[TASK][PUT][CHANGE LIST]Request for changing task from list");
 
         // check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
-            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            this.log.error(TOKEN_ERROR_MESSAGE.toUpperCase());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -143,14 +142,14 @@ public class TaskController {
     }
 
     @PutMapping("/pending/{taskId}")
-    ResponseEntity<Boolean> setTaskPending(@RequestHeader("Authorization") final String userToken,
+    public ResponseEntity<Boolean> setTaskPending(@RequestHeader("Authorization") final String userToken,
                                            @PathVariable final String taskId,
                                            @RequestBody Double pending) throws Exception {
         this.log.info("[TASK][PUT][SET PENDING]Request for changing task's pending time");
 
         // check token
         if (!this.jwtAuthorizationToken.checkToken(userToken)) {
-            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            this.log.error(TOKEN_ERROR_MESSAGE.toUpperCase());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
