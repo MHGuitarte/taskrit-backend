@@ -3,6 +3,7 @@ package com.mangh.taskrit.model;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -20,7 +21,10 @@ public class Task {
     @Column
     private String title;
 
-    @Column
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name="description", columnDefinition="TEXT")
+    @Type(type = "org.hibernate.type.TextType")
     private String description;
 
     @ManyToOne
