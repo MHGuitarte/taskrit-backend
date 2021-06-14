@@ -144,7 +144,7 @@ public class TaskController {
     @PutMapping("/pending/{taskId}")
     public ResponseEntity<Boolean> setTaskPending(@RequestHeader("Authorization") final String userToken,
                                            @PathVariable final String taskId,
-                                           @RequestBody Double pending) throws Exception {
+                                           @RequestParam(name = "p") Double pending) throws Exception {
         this.log.info("[TASK][PUT][SET PENDING]Request for changing task's pending time");
 
         // check token
