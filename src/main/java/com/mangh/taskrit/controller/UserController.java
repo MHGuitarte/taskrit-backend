@@ -52,17 +52,6 @@ public class UserController {
         this.log.info("[USER][POST][NEW] User {} successfully added. Sending confirmation mail to user",
                 user.getUserId().toString());
 
-        // send confirmation mail
-/*
-        try {
-            this.sendRegistrationMail(createdUser);
-
-        } catch (MessagingException e) {
-            return ResponseEntity.badRequest().body("Mail Service Unavailable, registration mail will not be sended.");
-        }
-
-*/
-
         return ResponseEntity.ok(this.userMapper.mapUserToUserRegisterRes(createdUser));
     }
 
