@@ -1,26 +1,25 @@
 package com.mangh.taskrit.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties({"lists"})
 public class Board {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @GeneratedValue
     private UUID boardId;
 
     @Column(nullable = false, length = 60)
@@ -31,4 +30,8 @@ public class Board {
 
     @Column(nullable = false)
     private boolean closed = false;
+
+    @Column
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<com.mangh.taskrit.model.List> lists = new ArrayList<>();
 }

@@ -1,26 +1,27 @@
 package com.mangh.taskrit.controller;
 
+import com.mangh.taskrit.configuration.JWTAuthorizationToken;
+import com.mangh.taskrit.dto.request.UserLoginReqDto;
+import com.mangh.taskrit.dto.request.UserRegisterReqDto;
+import com.mangh.taskrit.dto.response.UserLoginResDto;
+import com.mangh.taskrit.dto.response.UserRegisterResDto;
+import com.mangh.taskrit.mapper.poji.UserMapper;
 import com.mangh.taskrit.model.User;
+import com.mangh.taskrit.service.poji.UserService;
 import com.mangh.taskrit.util.poji.EmailService;
 import com.mangh.taskrit.util.poji.JWTTokenUtils;
 import com.mangh.taskrit.util.pojo.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.mail.MessagingException;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class UserController {
-
-    @Value("${user.token.expiration}")
-    private long EXPIRATION_TOKEN; //10 min expiration
-
-    @Value("${admin.token.access.expiration}")
-    private long EXPIRATION_ADMIN_TOKEN; //3 min expiration
-
-    @Value("${admin.token.access.security}")
-    private String adminAuth;
 
     private final Logger log = new Logger(UserController.class.getName());
 
@@ -28,37 +29,100 @@ public class UserController {
     private final UserService userService;
     private final EmailService emailService;
     private final JWTTokenUtils jwtTokenUtils;
+    private JWTAuthorizationToken jwtAuthorizationToken;
 
-    public UserController(UserRepository userRepository, EmailService emailService, JWTTokenUtils jwtTokenUtils) {
+    public UserController(UserService userService, UserMapper userMapper, EmailService emailService,
+                          JWTTokenUtils jwtTokenUtils, JWTAuthorizationToken jwtAuthorizationToken) {
+        this.userMapper = userMapper;
         this.emailService = emailService;
         this.jwtTokenUtils = jwtTokenUtils;
-        this.userRepository = userRepository;
+        this.userService = userService;
+        this.jwtAuthorizationToken = jwtAuthorizationToken;
     }
 
-    @PostMapping("/new")
-    public void saveUser(@RequestBody UserRegisterDto userRegisterDto) {
-        final User user = this.userMapper.mapUserRegisterToUser(userRegisterDto);
-        userRepository.save(user);
+    @PostMapping("/register")
+    public ResponseEntity<UserRegisterResDto> saveUser(@RequestBody UserRegisterReqDto userRegisterReqDto) {
+        this.log.info("[USER][POST][NEW]Request for register new user");
+
+        // map and create user
+
+        final User user = this.userMapper.mapUserRegisterReqToUser(userRegisterReqDto);
+        final User createdUser = this.userService.create(user);
+
+        this.log.info("[USER][POST][NEW] User {} successfully added. Sending confirmation mail to user",
+                user.getUserId().toString());
+
+        // send confirmation mail
+/*
+        try {
+            this.sendRegistrationMail(createdUser);
+
+        } catch (MessagingException e) {
+            return ResponseEntity.badRequest().body("Mail Service Unavailable, registration mail will not be sended.");
+        }
+
+*/
+
+        return ResponseEntity.ok(this.userMapper.mapUserToUserRegisterRes(createdUser));
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody UserLoginDto userLogindDto, HttpServletResponse response) {
-        final User user = this.userMapper.mapUserLoginDtoToUser(userLogindDto);
+    public ResponseEntity<UserLoginResDto> login(@RequestBody UserLoginReqDto userLoginReqDto) {
+        this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
 
-        //Check if user exists
+        try {
+            //get user
+            final User user = this.userService.findByUsername(userLoginReqDto.getUsername())
+                    .orElse(new User());
 
-        //Compare passwords
+            //check passwords
+            if (!this.userMapper.checkPasswords(user, userLoginReqDto)) {
+                this.log.error("[USER][POST][LOGIN]Username or password incorrect");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
 
-        //build token
+            if (!user.isEnabled()) {
+                this.log.error("[USER][POST][LOGIN]User is not enabled for login");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
 
-        //return token in header
-        response.addHeader("Authorization", );
+            this.log.info("[USER][POST][LOGIN]Login was successful. Returning access token");
+
+            //build token
+            String userToken = jwtTokenUtils.getJWTToken(user, userLoginReqDto.getSaveLogin());
+
+            this.log.info("[USER][POST][LOGIN]User {} successfully logged. Sending user info", user.getUsername());
+
+            return ResponseEntity.ok()
+                    .header("Authorization", userToken) //
+                    .body(UserLoginResDto.builder() //
+                            .id(user.getUserId().toString()) //
+                            .username(user.getUsername()) //
+                            .token(userToken) //
+                            .saveLogin(userLoginReqDto.getSaveLogin()) //
+                            .build());
+
+        } catch (UsernameNotFoundException e) {
+            this.log.error("[USER][POST][LOGIN]Request for login failed : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
-    @GetMapping("/{username}")
-    public User getUser(@PathVariable String username) {
-        final User user = userRepository.findByUserName(username);
-        return this.userMapper.mapUserToUserInfoDto(user);
+    @PostMapping("/checkToken")
+    public ResponseEntity<Boolean> checkToken(@RequestHeader("Authorization") final String userToken) {
+        if (!this.jwtAuthorizationToken.checkToken(userToken)) {
+            this.log.error("Unauthorized webtoken provided".toUpperCase());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+
+        return ResponseEntity.ok(true);
     }
 
+    //private methods
+    private void sendRegistrationMail(final User user) throws MessagingException {
+        //TODO: AuthenticationFailedException a la hora de mandar correo
+        this.emailService.sendSimpleMessage(user.getEmail(),
+                "Tu cuenta en TaskrIt ha sido creada correctamente",
+                "Correo de prueba");
+    }
 }

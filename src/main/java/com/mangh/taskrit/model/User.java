@@ -2,28 +2,19 @@ package com.mangh.taskrit.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class User implements UserDetails {
+public class User {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @GeneratedValue
     private UUID userId;
 
     @Column(length = 30, unique = true, nullable = false)
@@ -36,7 +27,7 @@ public class User implements UserDetails {
     private String password;
 
     @Lob
-    @Column(columnDefinition = "BLOB")
+    @Type(type = "org.hibernate.type.BinaryType")
     private byte[] avatar;
 
     @Column(nullable = false)
@@ -44,41 +35,8 @@ public class User implements UserDetails {
 
     @Column
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = false)
-    private List<BoardRole> boards;
+    private List<BoardInfo> boards = new ArrayList<>();
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        final SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(this.role.name());
-        return Collections.singletonList(simpleGrantedAuthority);
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    @Column
+    private boolean enabled = true;
 }

@@ -5,50 +5,35 @@ import com.mangh.taskrit.util.poji.JWTTokenUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 public class JWTTokenUtilsImpl implements JWTTokenUtils {
 
     @Value("${user.token.expiration}")
-    private long EXPIRATION_TOKEN; //10 min expiration
+    private long EXPIRATION_TOKEN; //1 day expiration
 
-    @Value("${admin.token.access.expiration}")
-    private long EXPIRATION_ADMIN_TOKEN; //3 min expiration
+    @Value("${persist.login.token.expiration}")
+    private long SAVE_LOGIN_TOKEN; //1 week expiration
 
     private final String secretKey = "6U#b*5";
-    private final String authId = "tinmdc";
+    private final String authId = "tskmdc";
 
     @Override
-    public String getJWTToken(final User user) {
-        return this.buildToken(user, this.EXPIRATION_TOKEN);
+    public String getJWTToken(final User user, final Boolean saveLogin) {
+        return buildToken(user, saveLogin);
     }
 
-    @Override
-    public boolean checkToken(final String requestPass, final String userPass) {
-        return requestPass.equals(userPass);
-    }
+    private String buildToken(final User user, final Boolean saveLogin) {
 
-    @Override
-    public String getAdminToken(final User u) {
-
-        return this.buildToken(u, this.EXPIRATION_ADMIN_TOKEN);
-    }
-
-    private String buildToken(final User user, final long expiration) {
-
-        return "Bearer " + Jwts.builder() //
-                .setId(this.authId) //
+        return Jwts.builder() //
+                .setId(authId) //
                 .setSubject(user.getUsername()) //
-                .claim("authorities", user.getAuthorities().stream() //
-                        .map(GrantedAuthority::getAuthority)  //
-                        .collect(Collectors.toList())) //
+                .claim("authority", user.getRole()) //
                 .setIssuedAt(new Date(System.currentTimeMillis())) //
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) //
-                .signWith(SignatureAlgorithm.HS512, this.secretKey.getBytes()).compact();
+                .setExpiration(new Date(System.currentTimeMillis() + (Boolean.TRUE.equals(saveLogin) ? EXPIRATION_TOKEN : SAVE_LOGIN_TOKEN))) //
+                .signWith(SignatureAlgorithm.HS512, secretKey.getBytes()).compact();
     }
 }
