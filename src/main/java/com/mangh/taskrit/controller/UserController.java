@@ -52,7 +52,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResDto> login(@RequestBody UserLoginReqDto userLoginReqDto) {
-        this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
+        // this.log.info("[USER][POST][LOGIN]Request for login with username {}", userLoginReqDto.getUsername());
 
         try {
             //get user
