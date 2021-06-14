@@ -8,15 +8,12 @@ import com.mangh.taskrit.dto.response.UserRegisterResDto;
 import com.mangh.taskrit.mapper.poji.UserMapper;
 import com.mangh.taskrit.model.User;
 import com.mangh.taskrit.service.poji.UserService;
-import com.mangh.taskrit.util.poji.EmailService;
 import com.mangh.taskrit.util.poji.JWTTokenUtils;
 import com.mangh.taskrit.util.pojo.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-
-import javax.mail.MessagingException;
 
 @RestController
 @RequestMapping("/user")
@@ -27,14 +24,12 @@ public class UserController {
 
     private final UserMapper userMapper;
     private final UserService userService;
-    private final EmailService emailService;
     private final JWTTokenUtils jwtTokenUtils;
     private JWTAuthorizationToken jwtAuthorizationToken;
 
-    public UserController(UserService userService, UserMapper userMapper, EmailService emailService,
+    public UserController(UserService userService, UserMapper userMapper,
                           JWTTokenUtils jwtTokenUtils, JWTAuthorizationToken jwtAuthorizationToken) {
         this.userMapper = userMapper;
-        this.emailService = emailService;
         this.jwtTokenUtils = jwtTokenUtils;
         this.userService = userService;
         this.jwtAuthorizationToken = jwtAuthorizationToken;
@@ -52,17 +47,6 @@ public class UserController {
         this.log.info("[USER][POST][NEW] User {} successfully added. Sending confirmation mail to user",
                 user.getUserId().toString());
 
-        // send confirmation mail
-/*
-        try {
-            this.sendRegistrationMail(createdUser);
-
-        } catch (MessagingException e) {
-            return ResponseEntity.badRequest().body("Mail Service Unavailable, registration mail will not be sended.");
-        }
-
-*/
-
         return ResponseEntity.ok(this.userMapper.mapUserToUserRegisterRes(createdUser));
     }
 
@@ -76,7 +60,7 @@ public class UserController {
                     .orElse(new User());
 
             //check passwords
-            if (!this.userMapper.checkPasswords(user, userLoginReqDto)) {
+            if (!this.userMapper.checkPasswords(user, userLoginReqDto).booleanValue()) {
                 this.log.error("[USER][POST][LOGIN]Username or password incorrect");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
@@ -118,11 +102,4 @@ public class UserController {
         return ResponseEntity.ok(true);
     }
 
-    //private methods
-    private void sendRegistrationMail(final User user) throws MessagingException {
-        //TODO: AuthenticationFailedException a la hora de mandar correo
-        this.emailService.sendSimpleMessage(user.getEmail(),
-                "Tu cuenta en TaskrIt ha sido creada correctamente",
-                "Correo de prueba");
-    }
 }
